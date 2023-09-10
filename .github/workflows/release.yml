@@ -1,0 +1,71 @@
+name: release
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: 🧪 Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v3
+
+      - name: 🍔 Setup bun
+        uses: oven-sh/setup-bun@v1
+
+      - name: 📥 Download deps
+        run: bun install
+
+      - name: 🧪 Test
+        run: bun test
+
+  release:
+    name: 🚀 Release
+    needs: [test]
+    runs-on: ubuntu-latest
+    if:
+      ${{ github.repository == 'epicweb-dev/remember' &&
+      contains('refs/heads/main,refs/heads/beta,refs/heads/next,refs/heads/alpha',
+      github.ref) && github.event_name == 'push' }}
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v3
+
+        # I'd prefer to use bun, but I got this error when I tried using bunx instead of npx:
+        # error TS5042: Option 'project' cannot be mixed with source files on a command line.
+        # error: "tsc" exited with code 1 (SIGHUP)
+        # Also, I don't know how to use bun instead of node for semantic-release 🤷‍♂️
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: 📥 Download deps
+        uses: bahmutov/npm-install@v1
+        with:
+          useLockFile: false
+
+      - name: 💪 Generate Types
+        run:
+          npx -p typescript tsc --declaration --emitDeclarationOnly --allowJs
+          --checkJs --downlevelIteration --module nodenext --moduleResolution
+          nodenext --target es2022 --outDir . index.js
+
+      - name: 🚀 Release
+        uses: cycjimmy/semantic-release-action@v3.2.0
+        with:
+          semantic_version: 17
+          branches: |
+            [
+              '+([0-9])?(.{+([0-9]),x}).x',
+              'main',
+              'next',
+              'next-major',
+              {name: 'beta', prerelease: true},
+              {name: 'alpha', prerelease: true}
+            ]
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -1,0 +1,37 @@
+{
+  "name": "@epic-web/remember",
+  "description": "Simple, type-safe, \"singleton\" implementation.",
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "index.d.ts"
+  ],
+  "module": "index.js",
+  "type": "module",
+  "license": "MIT",
+  "author": "Kent C. Dodds <me@kentcdodds.com> (https://kentcdodds.com/)",
+  "scripts": {
+    "test": "bun test"
+  },
+  "prettier": {
+    "semi": false,
+    "useTabs": true,
+    "singleQuote": true,
+    "proseWrap": "always",
+    "overrides": [
+      {
+        "files": [
+          "**/*.json"
+        ],
+        "options": {
+          "useTabs": false
+        }
+      }
+    ]
+  }
+}
