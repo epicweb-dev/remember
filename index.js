@@ -11,8 +11,7 @@
  */
 export function remember(name, getValue) {
 	const thusly = globalThis
-	thusly.__remember_epic_web = thusly.__remember_epic_web || {}
-	thusly.__remember_epic_web[name.toString()] =
-		thusly.__remember_epic_web[name] || getValue()
+	thusly.__remember_epic_web ??= {}
+	thusly.__remember_epic_web[name] ??= getValue()
 	return thusly.__remember_epic_web[name]
 }
