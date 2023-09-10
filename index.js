@@ -11,7 +11,9 @@
  */
 export function remember(name, getValue) {
 	const thusly = globalThis
-	thusly.__remember_epic_web ??= {}
-	thusly.__remember_epic_web[name] ??= getValue()
-	return thusly.__remember_epic_web[name]
+	thusly.__remember_epic_web ??= new Map()
+	if (!thusly.__remember_epic_web.has(name)) {
+		thusly.__remember_epic_web.set(name, getValue())
+	}
+	return thusly.__remember_epic_web.get(name)
 }
