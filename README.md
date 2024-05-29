@@ -62,6 +62,19 @@ Keep in mind that any changes you make within that callback will not be
 reflected when the module is re-evaluated (that's the whole point). So if you
 need to change the callback, then you'll need to restart your server.
 
+#### Forget a value
+
+It might be required to explicitly forget a value if it gets outdated, a memorized
+connection gets lost or memorized instance closes/errors/etc.
+
+```tsx
+import { remember, forget } from '@epic-web/remember'
+
+export const server = remember('server', () =>
+    http.createServer().listen('8080')
+        .on('close', () => forget('server')))
+```
+
 ## License
 
 MIT
