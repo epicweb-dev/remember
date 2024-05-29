@@ -17,3 +17,15 @@ export function remember(name, getValue) {
 	}
 	return thusly.__remember_epic_web.get(name)
 }
+
+/**
+ * Forgets a remembered value by a given name. Does not throw if the name doesn't exist.
+ *
+ * @param {string} name - The name under which the value was remembered.
+ * @return {boolean} - A remembered value existed and has been forgotten.
+ */
+export function forget(name) {
+	const thusly = globalThis
+	thusly.__remember_epic_web ??= new Map()
+	return thusly.__remember_epic_web.delete(name)
+}
