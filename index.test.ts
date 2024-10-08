@@ -1,4 +1,4 @@
-import { remember, forget } from './index.js'
+import { remember, rememberAsync, forget } from './index.js'
 import { expect, test, beforeEach } from 'bun:test'
 
 beforeEach(() => {
@@ -15,6 +15,16 @@ test('remember', () => {
 	returnValue = Symbol('bud')
 	// because the name and getValue did not change, the value is remembered
 	expect(remember('what is in a name', getValue)).toBe(rose)
+})
+
+test('rememberAsync', async () => {
+	const rose = Symbol('rose')
+	let returnValue = rose
+	const getValue = () => Promise.resolve(returnValue)
+	expect(await rememberAsync('what is in a name', getValue)).toBe(rose)
+	returnValue = Symbol('bud')
+	// because the name and getValue did not change, the value is remembered
+	expect(await rememberAsync('what is in a name', getValue)).toBe(rose)
 })
 
 test('forget', () => {
