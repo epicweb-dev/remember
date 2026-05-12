@@ -6,60 +6,87 @@ concurrency:
 
 jobs:
   test:
-    name: 🧪 Test
+    name: ð§ª Test
     runs-on: ubuntu-latest
     steps:
-      - name: ⬇️ Checkout repo
+      - name: â¬ï¸ Checkout repo
         uses: actions/checkout@v5
 
-      - name: 🍔 Setup bun
+      - name: ð Setup bun
         uses: oven-sh/setup-bun@v1
 
-      - name: 📥 Download deps
+      - name: ð¥ Download deps
         run: bun install
 
-      - name: 🧪 Test
+      - name: ð§ª Test
         run: bun test
 
-  release:
-    name: 🚀 Release
+  build-release-artifact:
+    name: 📦 Build release artifact
     needs: [test]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     if:
       ${{ github.repository == 'epicweb-dev/remember' &&
       contains('refs/heads/main,refs/heads/beta,refs/heads/next,refs/heads/alpha',
       github.ref) && github.event_name == 'push' }}
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: lts/*
+          package-manager-cache: false
+
+      - name: 📥 Install deps
+        run: npm install --ignore-scripts
+
+      - name: 📦 Prepare package
+        run: npx -p typescript tsc --declaration --emitDeclarationOnly --allowJs --checkJs --downlevelIteration --module nodenext --moduleResolution nodenext --target es2022 --outDir . index.js
+
+      - name: 📦 Upload package artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: npm-package-artifact
+          path: index.d.ts
+          if-no-files-found: error
+          retention-days: 1
+
+  release:
+    name: 🚀 Release
+    needs: [build-release-artifact]
+    runs-on: ubuntu-latest
     permissions:
       contents: write # to be able to publish a GitHub release
       id-token: write # to enable use of OIDC for npm provenance
       issues: write # to be able to comment on released issues
       pull-requests: write # to be able to comment on released pull requests
+    if:
+      ${{ github.repository == 'epicweb-dev/remember' &&
+      contains('refs/heads/main,refs/heads/beta,refs/heads/next,refs/heads/alpha',
+      github.ref) && github.event_name == 'push' }}
     steps:
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
-        # I'd prefer to use bun, but I got this error when I tried using bunx instead of npx:
-        # error TS5042: Option 'project' cannot be mixed with source files on a command line.
-        # error: "tsc" exited with code 1 (SIGHUP)
-        # Also, I don't know how to use bun instead of node for semantic-release 🤷‍♂️
       - name: ⎔ Setup node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
-          node-version: lts/*
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
 
-      - name: 📥 Download deps
-        uses: bahmutov/npm-install@v1
+      - name: 📦 Download package artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          useLockFile: false
-
-      - name: 💪 Generate Types
-        run:
-          npx -p typescript tsc --declaration --emitDeclarationOnly --allowJs
-          --checkJs --downlevelIteration --module nodenext --moduleResolution
-          nodenext --target es2022 --outDir . index.js
+          name: npm-package-artifact
+          path: .
 
       - name: 🚀 Release
-        uses: cycjimmy/semantic-release-action@v5.0.2
+        uses: cycjimmy/semantic-release-action@ba330626c4750c19d8299de843f05c7aa5574f62 # v5.0.2
         with:
           semantic_version: 25
           branches: |
@@ -73,3 +100,5 @@ jobs:
             ]
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+          NPM_CONFIG_IGNORE_SCRIPTS: true
