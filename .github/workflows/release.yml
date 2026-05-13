@@ -1,4 +1,4 @@
-name: release
+name: 🚀 Release
 on: [push, pull_request]
 permissions:
   contents: read
@@ -12,16 +12,16 @@ jobs:
     name: 🧪 Test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: ⬇️ Checkout repo
         uses: actions/checkout@v5
 
-      - name: Setup bun
+      - name: 🍔 Setup bun
         uses: oven-sh/setup-bun@v1
 
-      - name: Download deps
+      - name: 📥 Download deps
         run: bun install
 
-      - name: Test
+      - name: 🧪 Test
         run: bun test
 
   build-release-artifact:
@@ -32,10 +32,10 @@ jobs:
       contents: read
     if: ${{ github.repository == 'epicweb-dev/remember' && github.event_name == 'push' }}
     steps:
-      - name: Checkout repo
+      - name: ⬇️ Checkout repo
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
-      - name: Setup node
+      - name: ⎔ Setup node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: lts/*
@@ -66,10 +66,10 @@ jobs:
       pull-requests: write # to be able to comment on released pull requests
     if: ${{ github.repository == 'epicweb-dev/remember' && github.event_name == 'push' }}
     steps:
-      - name: Checkout repo
+      - name: ⬇️ Checkout repo
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
-      - name: Setup node
+      - name: ⎔ Setup node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: 24
@@ -82,7 +82,7 @@ jobs:
           name: npm-package-artifact
           path: .
 
-      - name: Release
+      - name: 🚀 Release
         uses: cycjimmy/semantic-release-action@ba330626c4750c19d8299de843f05c7aa5574f62 # v5.0.2
         with:
           semantic_version: 25
