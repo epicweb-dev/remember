@@ -45,7 +45,7 @@ jobs:
         run: npm install --ignore-scripts
 
       - name: Prepare package
-        run: npx -p typescript tsc --declaration --emitDeclarationOnly --allowJs --checkJs --downlevelIteration --module nodenext --moduleResolution nodenext --target es2022 --outDir . index.js
+        run: npx -p typescript tsc --declaration --emitDeclarationOnly --allowJs --checkJs --module nodenext --moduleResolution nodenext --target es2022 --outDir . index.js
 
       - name: Upload package artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
