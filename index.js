@@ -1,16 +1,10 @@
 // Borrowed/modified from https://github.com/jenseng/abuse-the-platform/blob/2993a7e846c95ace693ce61626fa072174c8d9c7/app/utils/singleton.ts
 
 /**
- * @typedef {typeof globalThis & {
- * 	__remember_epic_web?: Map<string, unknown>
- * }} RememberGlobal
- */
-
-/**
  * @returns {Map<string, unknown>}
  */
 function getRememberMap() {
-	/** @type {RememberGlobal} */
+	/** @type {typeof globalThis & { __remember_epic_web?: Map<string, unknown> }} */
 	const thusly = globalThis
 	return (thusly.__remember_epic_web ??= new Map())
 }
